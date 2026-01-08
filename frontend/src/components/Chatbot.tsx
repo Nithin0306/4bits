@@ -3,14 +3,14 @@
  * Conversational interface for scheduling and booking appointments
  */
 
-import { Bot, Send, User, Loader2, CheckCircle, XCircle } from 'lucide-react';
-import React, { useState, useRef, useEffect } from 'react';
-import SlotSelector from './SlotSelector';
+import { Bot, CheckCircle, Loader2, Send, User, XCircle } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     AppointmentSlot,
-    suggestSlots,
     bookAppointment,
+    suggestSlots,
 } from '../services/agentService';
+import SlotSelector from './SlotSelector';
 
 interface ChatbotProps {
     authToken: string;
@@ -47,7 +47,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ authToken, userId, userName }) => {
     const [input, setInput] = useState('');
     const [chatState, setChatState] = useState<ChatState>(ChatState.IDLE);
     const [selectedSlot, setSelectedSlot] = useState<AppointmentSlot | null>(null);
-    const [currentSlots, setCurrentSlots] = useState<AppointmentSlot[]>([]);
+    const [, setCurrentSlots] = useState<AppointmentSlot[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -232,8 +232,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ authToken, userId, userName }) => {
                     >
                         <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === 'user'
-                                    ? 'bg-slate-200 text-slate-600'
-                                    : 'bg-blue-100 text-blue-600'
+                                ? 'bg-slate-200 text-slate-600'
+                                : 'bg-blue-100 text-blue-600'
                                 }`}
                         >
                             {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
@@ -242,8 +242,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ authToken, userId, userName }) => {
                         <div className={`max-w-[75%] ${msg.role === 'user' ? 'items-end' : 'items-start'} flex flex-col gap-2`}>
                             <div
                                 className={`p-3 rounded-2xl text-sm leading-relaxed ${msg.role === 'user'
-                                        ? 'bg-slate-100 text-slate-800 rounded-tr-none'
-                                        : 'bg-blue-50 text-slate-800 rounded-tl-none border border-blue-100'
+                                    ? 'bg-slate-100 text-slate-800 rounded-tr-none'
+                                    : 'bg-blue-50 text-slate-800 rounded-tl-none border border-blue-100'
                                     }`}
                             >
                                 {msg.content}
