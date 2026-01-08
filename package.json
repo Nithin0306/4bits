@@ -1,5 +1,0 @@
-{
-  "dependencies": {
-    "@types/qrcode-terminal": "^0.12.2"
-  }
-}
