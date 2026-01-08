@@ -1,19 +1,13 @@
-# ============================================
-# VITA-CARE WhatsApp Service Dockerfile
-# Node.js + Puppeteer with Chromium
-# ============================================
-
+# Use node 18 slim image
 FROM node:18-slim
 
 # Set working directory
 WORKDIR /app
 
-# ============================================
-# Install Chromium Dependencies for Puppeteer
-# ============================================
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install dependencies required for Puppeteer and Chromium
+# We install chromium directly and tell Puppeteer to use it
+RUN apt-get update && apt-get install -y \
     chromium \
-    # Chromium dependencies
     libnss3 \
     libatk1.0-0 \
     libatk-bridge2.0-0 \
@@ -28,34 +22,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libasound2 \
     libpango-1.0-0 \
     libcairo2 \
-    # Fonts for proper rendering
     fonts-liberation \
     fonts-noto-color-emoji \
-    # Clean up
     && rm -rf /var/lib/apt/lists/*
 
-# ============================================
-# Puppeteer Configuration
-# ============================================
-# Skip downloading bundled Chromium (we use system Chromium)
+# Set Puppeteer environment variables
+# Skip downloading chromium since we installed it manually
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-# Point to system Chromium
+# Point Puppeteer to the installed chromium executable
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# ============================================
-# Application Setup
-# ============================================
-# Copy package files first for layer caching
-COPY package.json package-lock.json* yarn.lock* ./
+# Copy package files
+COPY package.json package-lock.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm ci
 
-# Copy application code
+# Copy the rest of the application code
 COPY . .
 
-# Create directory for WhatsApp session data (will be mounted as volume)
+# Create directory for authentication session data
 RUN mkdir -p /app/.wwebjs_auth
 
-# Run the WhatsApp service
+# Start the application
 CMD ["npm", "run", "main"]

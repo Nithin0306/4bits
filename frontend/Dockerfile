@@ -1,38 +1,32 @@
-# ============================================
-# VITA-CARE Frontend Dockerfile
-# Multi-stage build for React + Vite + Nginx
-# ============================================
-
-# Stage 1: Build
+# Stage 1: Build the application
+# Use node 18 alpine image for smaller size
 FROM node:18-alpine AS build
 
+# Set working directory
 WORKDIR /app
 
-# Copy package files first for layer caching
+# Copy package files first to leverage Docker layer caching
 COPY package.json package-lock.json ./
 
-# Install dependencies (ci for deterministic builds)
+# Install dependencies using clean install for reproducibility
 RUN npm ci
 
-# Copy source code
+# Copy the rest of the application code
 COPY . .
 
-# Build production assets
+# Build the application
 RUN npm run build
 
-# ============================================
-# Stage 2: Production
-# ============================================
-FROM nginx:alpine AS production
+# Stage 2: Serve the application
+# Use nginx alpine image for production
+FROM nginx:alpine
 
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Copy built assets from build stage
+# Copy built assets from builder stage
+# Vite builds to 'dist' by default
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Expose port 80
 EXPOSE 80
 
-# Nginx runs in foreground by default with this image
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
