@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# WhatsApp session data (mounted as volume, not copied)
+.wwebjs_auth/
+.wwebjs_cache/
+
+# Environment files (secrets should not be in image)
+.env
+.env.*
+!.env.example
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Docker files (not needed inside container)
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# TypeScript build output
+dist/
+build/

@@ -1,0 +1,90 @@
+# ============================================
+# VITA-CARE Docker Compose Configuration
+# Multi-service healthcare coordination app
+# ============================================
+
+services:
+  # ==========================================
+  # Frontend Service (React + Nginx)
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: vita-care-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - vita-care-network
+    restart: unless-stopped
+
+  # ==========================================
+  # Backend Service (FastAPI + Python)
+  # ==========================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vita-care-backend
+    ports:
+      - "8000:8000"
+    environment:
+      # Gemini AI Configuration
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      # Supabase Configuration
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      # JWT Configuration
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - JWT_EXPIRATION_HOURS=${JWT_EXPIRATION_HOURS:-24}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - vita-care-network
+    restart: unless-stopped
+
+  # ==========================================
+  # WhatsApp Service (Node.js + Puppeteer)
+  # ==========================================
+  whatsapp:
+    build:
+      context: ./whatsapp
+      dockerfile: Dockerfile
+    container_name: vita-care-whatsapp
+    environment:
+      # Puppeteer Configuration
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+      # Backend API URL (for WhatsApp to call backend)
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      # Persist WhatsApp session data across restarts
+      - whatsapp-session:/app/.wwebjs_auth
+    networks:
+      - vita-care-network
+    restart: unless-stopped
+
+# ==========================================
+# Networks
+# ==========================================
+networks:
+  vita-care-network:
+    driver: bridge
+
+# ==========================================
+# Volumes
+# ==========================================
+volumes:
+  whatsapp-session:
+    driver: local
