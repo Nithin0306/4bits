@@ -35,10 +35,10 @@ async def trigger_message_send_post(request: MessageRequest):
     Endpoint to trigger sending a WhatsApp message via POST JSON.
     """
     success, error_msg = send_whatsapp_message(request.contact, request.message)
-    
+
     if not success:
         raise HTTPException(status_code=500, detail=error_msg)
-        
+
     return {
         "contact": request.contact,
         "message": request.message,
@@ -51,10 +51,10 @@ async def trigger_message_send_get(contact: str, message: str):
     Endpoint to trigger sending a WhatsApp message via GET path parameters.
     """
     success, error_msg = send_whatsapp_message(contact, message)
-    
+
     if not success:
         raise HTTPException(status_code=500, detail=error_msg)
-        
+
     return {
         "contact": contact,
         "message": message,

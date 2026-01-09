@@ -29,7 +29,7 @@ async def send_notification(contact: str, message: str) -> Dict:
     try:
         # Construct API endpoint
         endpoint = f"{NOTIFICATION_API_BASE}/send"
-        
+
         # Prepare payload
         payload = {
             "contact": contact,
@@ -124,7 +124,7 @@ async def send_booking_confirmation(contact: str, doctor_name: str, appointment_
 # Test function
 async def test_notification_agent():
     """Test the notification agent"""
-    result = await send_notification("555-1234", "Test notification message")
+    result = await send_notification("7069318874", "Test notification message")
     print("Notification result:", result)
 
 
